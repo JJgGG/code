@@ -36,4 +36,9 @@ swagger是一个规范和完整的框架，主要用于生成、描述、调用�
    2.用于全局数据绑定（搭配@modelAtrribute注解做数据绑定）
    用于数据预处理
 
-
+*****************
+在vscode构建vue脚手架时，出现vue : 无法加载文件 C:\Users\xxx\AppData\Roaming\npm\vue.ps1，因为在此系统上禁止运行脚本报错？
+解决方法：转到“开始”菜单，然后搜索“ Windows PowerShell ISE”。
+        右键单击x64版本，然后选择“以管理员身份运行”。
+        在顶部，粘贴Set-ExecutionPolicy RemoteSigned ； 运行脚本。 选择“全是”。
+****************

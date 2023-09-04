@@ -29,7 +29,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.atguigu</groupId>
+            <groupId>com.example</groupId>
             <artifactId>model</artifactId>
             <version>1.0-SNAPSHOT</version>
             <scope>provided</scope>

@@ -1,0 +1,39 @@
+1.项目工程code
+  所包含的模块：common、model、servce,其中common中包含common-util、service-uitl
+
+2.项目主要的核心技术
+SpringBoot：简化新Spring应用的初始搭建以及开发过程
+SpringCloud：基于Spring Boot实现的云原生应用开发工具，SpringCloud使用的技术：（Spring Cloud Gateway、Spring Cloud OpenFeign、Spring Cloud Alibaba Nacos等）
+MyBatis-Plus：持久层框架
+Redis：缓存数据库
+Redisson：基于redis的Java驻内存数据网格，实现分布式锁
+RabbitMQ：消息中间件
+ElasticSearch +Kibana: 全文检索服务器 +可视化数据监控
+ThreadPoolExecutor：线程池来实现异步操作，提高效率
+OSS：文件存储服务
+Knife4j（Swagger）：Api接口文档工具
+Nginx：负载均衡
+MySQL：关系型数据库
+微信支付
+微信小程序
+Docker：容器技术
+DockerFile：管理Docker镜像命令文本
+
+3.开发流程介绍（使用jdk8）
+前后端分离开发过程中，前端人员和后端人员要进行配合来共同完成一个任务。这个时候需要使用到接口。
+接口（API接口）：是一个http的请求地址，主要是定义：请求路径、请求方式、请求参数、响应数据等内容。
+（1）后端编写和维护接口文档，在 API 变化时更新接口文档
+（2）后端根据接口文档进行接口开发
+（3）前端根据接口文档进行开发
+（4）开发完成后联调和提交测试
+swagger是一个规范和完整的框架，主要用于生成、描述、调用和可视化restful风格的web服务的接口文档
+
+4.项目依赖的导入
+
+5.在service-util中编写mybatisPlus配置类、异常处理类、状态码返回类以及swagger2Config配置类。
+异常处理类中的@ControllerAdvice注解，主要的应用场景有：
+   1.用于全局异常处理
+   2.用于全局数据绑定（搭配@modelAtrribute注解做数据绑定）
+   用于数据预处理
+
+

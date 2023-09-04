@@ -1,3 +1,4 @@
+//奇数node是对于springBoot的学习/偶数node是对项目的学习
 springBoot开发流程：
 1、 创建项目-maven项目
 <!--    所有springboot项目都必须继承自 spring-boot-starter-parent -->
@@ -53,31 +54,31 @@ public class HelloController {
 ● 父项目 版本仲裁中心，把所有常见的jar的依赖版本都声明好了。
 ● 比如：mysql-connector-j
 3、自定义版本号
-● 利用maven的就近原则
-  ○ 直接在当前项目properties标签中声明父项目用的版本属性的key
-  ○ 直接在导入依赖的时候声明版本
+利用maven的就近原则
+  直接在当前项目properties标签中声明父项目用的版本属性的key
+  直接在导入依赖的时候声明版本
 4、第三方的jar包
-● springboot父项目没有管理的需要自行声明好
+springboot父项目没有管理的需要自行声明好
 
 
 ● 默认的包扫描规则
-  ○ @SpringBootApplication 标注的类就是主程序类
-  ○ SpringBoot只会扫描主程序所在的包及其下面的子包，自动的component-scan功能
-  ○ 自定义扫描路径
-    ■ @SpringBootApplication(scanBasePackages = "com.atguigu")
-    ■ @ComponentScan("com.atguigu") 直接指定扫描的路径
+  @SpringBootApplication 标注的类就是主程序类
+  SpringBoot只会扫描主程序所在的包及其下面的子包，自动的component-scan功能
+  自定义扫描路径
+    @SpringBootApplication(scanBasePackages = "com.example")
+    @ComponentScan("com.atguigu") 直接指定扫描的路径
 ● 配置默认值
-  ○ 配置文件的所有配置项是和某个类的对象值进行一一绑定的。
-  ○ 绑定了配置文件中每一项值的类： 属性类。
-  ○ 比如：
-    ■ ServerProperties绑定了所有Tomcat服务器有关的配置
-    ■ MultipartProperties绑定了所有文件上传相关的配置
-    ■ ....参照官方文档：或者参照 绑定的  属性类。
+  配置文件的所有配置项是和某个类的对象值进行一一绑定的。
+  绑定了配置文件中每一项值的类： 属性类。
+  比如：
+    ServerProperties绑定了所有Tomcat服务器有关的配置
+    MultipartProperties绑定了所有文件上传相关的配置
+    ....参照官方文档：或者参照 绑定的  属性类。
 ● 按需加载自动配置
-  ○ 导入场景spring-boot-starter-web
-  ○ 场景启动器除了会导入相关功能依赖，导入一个spring-boot-starter，是所有starter的starter，基础核心starter
-  ○ spring-boot-starter导入了一个包 spring-boot-autoconfigure。包里面都是各种场景的AutoConfiguration自动配置类
-  ○ 虽然全场景的自动配置都在 spring-boot-autoconfigure这个包，但是不是全都开启的。
+  导入场景spring-boot-starter-web
+  场景启动器除了会导入相关功能依赖，导入一个spring-boot-starter，是所有starter的starter，基础核心starter
+  spring-boot-starter导入了一个包 spring-boot-autoconfigure。包里面都是各种场景的AutoConfiguration自动配置类
+  虽然全场景的自动配置都在 spring-boot-autoconfigure这个包，但是不是全都开启的。
     ■ 导入哪个场景就开启哪个自动配置
 
 总结： 导入场景启动器、触发 spring-boot-autoconfigure这个包的自动配置生效、容器中就会具有相关场景的功能
@@ -120,3 +121,36 @@ SpringBoot摒弃XML配置方式，改为全注解驱动
   ● 场景：SpringBoot默认只扫描自己主程序所在的包。如果导入第三方包，
   即使组件上标注了 @Component、@ConfigurationProperties 注解，也没用。
   因为组件都扫描不进来，此时使用这个注解就可以快速进行属性绑定并把组件注册进容器
+
+5.自动配置流程细节梳理：
+  1、导入starter，就会导入autoconfigure包。
+  2、autoconfigure 包里面 有一个文件 META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports,里面指定的所有启动要加载的自动配置类
+  3、@EnableAutoConfiguration 会自动的把上面文件里面写的所有自动配置类都导入进来。xxxAutoConfiguration 是有条件注解进行按需加载
+  4、xxxAutoConfiguration给容器中导入一堆组件，组件都是从 xxxProperties中提取属性值
+  5、xxxProperties又是和配置文件进行了绑定
+  效果：导入starter、修改配置文件，就能修改底层行为
+
+
+6.如何学好SpringBoot
+  1. 理解自动配置原理
+    a. 导入starter --> 生效xxxxAutoConfiguration --> 组件 --> xxxProperties --> 配置文件
+  2. 理解其他框架底层
+  3. 可以随时定制化任何组件
+    a. 配置文件
+    b. 自定义组件
+  普通开发：导入starter，Controller、Service、Mapper、偶尔修改配置文件
+  高级开发：自定义组件、自定义配置、自定义starter
+
+7.以整合redis为例：
+  选场景：spring-boot-starter-data-redis
+    场景AutoConfiguration 就是这个场景的自动配置类
+  写配置：
+    分析到这个场景的自动配置类开启了哪些属性绑定关系
+    @EnableConfigurationProperties(RedisProperties.class)
+    修改redis相关的配置
+  分析组件：
+    分析到 RedisAutoConfiguration  给容器中放了 StringRedisTemplate
+    给业务代码中自动装配 StringRedisTemplate
+  定制化
+    修改配置文件
+    自定义组件，自己给容器中放一个 StringRedisTemplate

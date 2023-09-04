@@ -1,0 +1,122 @@
+springBoot开发流程：
+1、 创建项目-maven项目
+<!--    所有springboot项目都必须继承自 spring-boot-starter-parent -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.0.5</version>
+    </parent>
+2、导入对应的场景
+    <dependencies>
+<!--        web开发的场景启动器 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+    </dependencies>
+3、主程序
+@SpringBootApplication //这是一个SpringBoot应用
+public class MainApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(MainApplication.class,args);
+    }
+}
+4、示例
+@RestController
+public class HelloController {
+
+    @GetMapping("/hello")
+    public String hello(){
+
+        return "Hello,Spring Boot !";
+    }
+
+}
+
+打包的方法：mvn clean package指令  项目启动：java -jar demo.jar
+//
+//
+//
+//
+//
+
+2. 依赖管理机制
+思考：
+1、为什么导入starter-web所有相关依赖都导入进来？
+● 开发什么场景，导入什么场景启动器。
+● maven依赖传递原则。A-B-C： A就拥有B和C
+● 导入 场景启动器。 场景启动器 自动把这个场景的所有核心依赖全部导入进来
+2、为什么版本号都不用写？
+● 每个boot项目都有一个父项目spring-boot-starter-parent
+● parent的父项目是spring-boot-dependencies
+● 父项目 版本仲裁中心，把所有常见的jar的依赖版本都声明好了。
+● 比如：mysql-connector-j
+3、自定义版本号
+● 利用maven的就近原则
+  ○ 直接在当前项目properties标签中声明父项目用的版本属性的key
+  ○ 直接在导入依赖的时候声明版本
+4、第三方的jar包
+● springboot父项目没有管理的需要自行声明好
+
+
+● 默认的包扫描规则
+  ○ @SpringBootApplication 标注的类就是主程序类
+  ○ SpringBoot只会扫描主程序所在的包及其下面的子包，自动的component-scan功能
+  ○ 自定义扫描路径
+    ■ @SpringBootApplication(scanBasePackages = "com.atguigu")
+    ■ @ComponentScan("com.atguigu") 直接指定扫描的路径
+● 配置默认值
+  ○ 配置文件的所有配置项是和某个类的对象值进行一一绑定的。
+  ○ 绑定了配置文件中每一项值的类： 属性类。
+  ○ 比如：
+    ■ ServerProperties绑定了所有Tomcat服务器有关的配置
+    ■ MultipartProperties绑定了所有文件上传相关的配置
+    ■ ....参照官方文档：或者参照 绑定的  属性类。
+● 按需加载自动配置
+  ○ 导入场景spring-boot-starter-web
+  ○ 场景启动器除了会导入相关功能依赖，导入一个spring-boot-starter，是所有starter的starter，基础核心starter
+  ○ spring-boot-starter导入了一个包 spring-boot-autoconfigure。包里面都是各种场景的AutoConfiguration自动配置类
+  ○ 虽然全场景的自动配置都在 spring-boot-autoconfigure这个包，但是不是全都开启的。
+    ■ 导入哪个场景就开启哪个自动配置
+
+总结： 导入场景启动器、触发 spring-boot-autoconfigure这个包的自动配置生效、容器中就会具有相关场景的功能
+
+//
+//
+//
+//
+//
+3.常用注解
+1. 常用注解
+SpringBoot摒弃XML配置方式，改为全注解驱动
+1. 组件注册
+@Configuration、@SpringBootConfiguration
+@Bean、@Scope
+@Controller、 @Service、@Repository、@Component
+@Import
+@ComponentScan
+
+步骤：
+1、@Configuration 编写一个配置类
+2、在配置类中，自定义方法给容器中注册组件。配合@Bean
+3、或使用@Import 导入第三方的组件
+
+2. 条件注解
+如果注解指定的条件成立，则触发指定行为
+@ConditionalOnXxx
+@ConditionalOnClass：如果类路径中存在这个类，则触发指定行为
+@ConditionalOnMissingClass：如果类路径中不存在这个类，则触发指定行为
+@ConditionalOnBean：如果容器中存在这个Bean（组件），则触发指定行为
+@ConditionalOnMissingBean：如果容器中不存在这个Bean（组件），则触发指定行为
+//
+//
+//
+//
+//
+4.属性绑定
+    @ConfigurationProperties： 声明组件的属性和配置文件哪些前缀开始项进行绑定
+    @EnableConfigurationProperties：快速注册注解：
+  ● 场景：SpringBoot默认只扫描自己主程序所在的包。如果导入第三方包，
+  即使组件上标注了 @Component、@ConfigurationProperties 注解，也没用。
+  因为组件都扫描不进来，此时使用这个注解就可以快速进行属性绑定并把组件注册进容器

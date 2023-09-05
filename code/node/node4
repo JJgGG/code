@@ -1,0 +1,16 @@
+2023年9月5日
+################
+1.获取到vue脚手架之后，查看user.js，可以看到有三个接口，因此后端建立对应的三个接口。
+三个接口分别是：login(登录)、info(获取信息)以及logout(退出登录)
+##########
+启动时遇到的问题：
+    [restartedMain] o.s.b.d.LoggingFailureAnalysisReporter
+原因分析：
+这是因为spring boot 会默认加载
+org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration 这个类
+DataSourceAutoConfiguration类使用了@Configuration注解向spring注入了dataSource bean。
+因为工程中没有关于dataSource相关的配置信息，当spring创建dataSource bean因缺少相关的信息就会报错。
+解决方法：
+在@SpringBootApplication注解后面加上(exclude = {DataSourceAutoConfiguration.class})
+################
+2.启动服务之后，在swagger中可以访问到三个接口（之前通过swagger2Config配置）

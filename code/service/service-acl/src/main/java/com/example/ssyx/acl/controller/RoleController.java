@@ -9,11 +9,11 @@ import com.example.ssyx.vo.acl.RoleQueryVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin/acl/role")
@@ -37,5 +37,28 @@ public class RoleController {
         IPage<Role> pageModel = roleService.selectRolePage(pageParam, roleQueryVo);
         return Result.ok(pageModel);
     }
+    @ApiOperation(value = "获取角色")
+    @PostMapping("get/{id}")
+    public Result get(@PathVariable Long id){
+        Role role = roleService.getById(id);
+        return Result.ok(role);
+    }
+    @ApiOperation(value = "新增角色")
+    @PostMapping("update")
+    public Result updateById(@RequestBody Role role){
+        boolean b = roleService.updateById(role);
+        return Result.ok(b);
+    }
 
+    @ApiOperation(value = "删除角色")
+    @DeleteMapping("remove/{id}")
+    public Result remove(@PathVariable Long id) {
+        return Result.ok(roleService.removeById(id));
+    }
+
+    @ApiOperation(value = "根据id列表删除角色")
+    @DeleteMapping("batchRemove")
+    public Result batchRemove(@RequestBody List<Long> idList) {
+        return Result.ok(roleService.removeByIds(idList));
+    }
 }

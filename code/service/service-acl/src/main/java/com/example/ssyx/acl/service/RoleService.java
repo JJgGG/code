@@ -9,4 +9,6 @@ import com.example.ssyx.vo.acl.RoleQueryVo;
 
 public interface RoleService extends IService<Role> {
     IPage<Role> selectRolePage(Page<Role> pageParam, RoleQueryVo roleQueryVo);
+
+
 }

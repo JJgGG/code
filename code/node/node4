@@ -15,3 +15,11 @@ DataSourceAutoConfiguration类使用了@Configuration注解向spring注入了dat
 ################
 2.启动服务之后，在swagger中可以访问到三个接口（之前通过swagger2Config配置）
 3.跨域问题解决方法：添加@CrossOrigin注解
+
+
+##########################
+编写用户管理接口：
+  1.角色分页列表接口
+  创建RoleController,创建RoleService,创建RoleMapper，其中RoleMapper继承BaseMapper（用mp进行分页）
+  在RoleController中通过Page分页，RoleServiceImpl编写具体的实现类，实现selectRolePage方法，并通过
+  创建mp条件对象，进行查询，返回符合条件的结果。

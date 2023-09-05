@@ -14,3 +14,4 @@ DataSourceAutoConfiguration类使用了@Configuration注解向spring注入了dat
 在@SpringBootApplication注解后面加上(exclude = {DataSourceAutoConfiguration.class})
 ################
 2.启动服务之后，在swagger中可以访问到三个接口（之前通过swagger2Config配置）
+3.跨域问题解决方法：添加@CrossOrigin注解

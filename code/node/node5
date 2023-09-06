@@ -1,0 +1,148 @@
+2023年9月6日
+自动配置
+1、整合web场景
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+2、引入了 autoconfigure功能
+3、@EnableAutoConfiguration注解使用@Import(AutoConfigurationImportSelector.class)批量导入组件
+4、加载 META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports 文件中配置的所有组件
+5、所有自动配置类如下
+org.springframework.boot.autoconfigure.web.client.RestTemplateAutoConfiguration
+org.springframework.boot.autoconfigure.web.embedded.EmbeddedWebServerFactoryCustomizerAutoConfiguration
+====以下是响应式web场景和现在的没关系======
+org.springframework.boot.autoconfigure.web.reactive.HttpHandlerAutoConfiguration
+org.springframework.boot.autoconfigure.web.reactive.ReactiveMultipartAutoConfiguration
+org.springframework.boot.autoconfigure.web.reactive.ReactiveWebServerFactoryAutoConfiguration
+org.springframework.boot.autoconfigure.web.reactive.WebFluxAutoConfiguration
+org.springframework.boot.autoconfigure.web.reactive.WebSessionIdResolverAutoConfiguration
+org.springframework.boot.autoconfigure.web.reactive.error.ErrorWebFluxAutoConfiguration
+org.springframework.boot.autoconfigure.web.reactive.function.client.ClientHttpConnectorAutoConfiguration
+org.springframework.boot.autoconfigure.web.reactive.function.client.WebClientAutoConfiguration
+================以上没关系=================
+org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.error.ErrorMvcAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.HttpEncodingAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.MultipartAutoConfiguration
+org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration
+
+6、绑定了配置文件的一堆配置项
+● 1、SpringMVC的所有配置 spring.mvc
+● 2、Web场景通用配置 spring.web
+● 3、文件上传配置 spring.servlet.multipart
+● 4、服务器的配置 server: 比如：编码方式
+7.SpringBoot 已经默认配置好了Web开发场景常用功能。我们直接使用即可。
+  三种方式
+  方式	       用法	                效果
+  全自动	     直接编写控制器逻辑		全部使用自动配置默认效果
+  手自一体	@Configuration +
+          配置WebMvcConfigurer+
+          配置 WebMvcRegistrations 不要标注@EnableWebMvc	保留自动配置效果
+  手动设置 部分功能 定义MVC底层组件 全手动	@Configuration + 配置WebMvcConfigurer	标注@EnableWebMvc	禁用自动配置效果 全手动设置
+  总结：
+  给容器中写一个配置类@Configuration实现 WebMvcConfigurer但是不要标注 @EnableWebMvc注解，实现手自一体的效果。
+
+8.SpringBoot3-Web开发
+  SpringBoot的Web开发能力，由SpringMVC提供。
+  0. WebMvcAutoConfiguration原理
+  1. 生效条件
+  @AutoConfiguration(after = { DispatcherServletAutoConfiguration.class, TaskExecutionAutoConfiguration.class,
+  		ValidationAutoConfiguration.class }) //在这些自动配置之后
+  @ConditionalOnWebApplication(type = Type.SERVLET) //如果是web应用就生效，类型SERVLET、REACTIVE 响应式web
+  @ConditionalOnClass({ Servlet.class, DispatcherServlet.class, WebMvcConfigurer.class })
+  @ConditionalOnMissingBean(WebMvcConfigurationSupport.class) //容器中没有这个Bean，才生效。默认就是没有
+  @AutoConfigureOrder(Ordered.HIGHEST_PRECEDENCE + 10)//优先级
+  @ImportRuntimeHints(WebResourcesRuntimeHints.class)
+  public class WebMvcAutoConfiguration {
+  2. 效果
+  放了两个Filter：
+    a.  HiddenHttpMethodFilter；页面表单提交Rest请求（GET、POST、PUT、DELETE）
+    b. FormContentFilter： 表单内容Filter，GET（数据放URL后面）、POST（数据放请求体）请求可以携带数据，PUT、DELETE 的请求体数据会被忽略
+  给容器中放了WebMvcConfigurer组件；给SpringMVC添加各种定制功能
+    a. 所有的功能最终会和配置文件进行绑定
+    b. WebMvcProperties： spring.mvc配置文件
+    c. WebProperties： spring.web配置文件
+9.WebMvcConfigurer接口
+  提供了配置SpringMVC底层的所有组件入口
+10.静态资源规则源码
+@Override
+public void addResourceHandlers(ResourceHandlerRegistry registry) {
+    if (!this.resourceProperties.isAddMappings()) {
+        logger.debug("Default resource handling disabled");
+        return;
+    }
+    //1、
+    addResourceHandler(registry, this.mvcProperties.getWebjarsPathPattern(),
+            "classpath:/META-INF/resources/webjars/");
+    addResourceHandler(registry, this.mvcProperties.getStaticPathPattern(), (registration) -> {
+        registration.addResourceLocations(this.resourceProperties.getStaticLocations());
+        if (this.servletContext != null) {
+            ServletContextResource resource = new ServletContextResource(this.servletContext, SERVLET_LOCATION);
+            registration.addResourceLocations(resource);
+        }
+    });
+}
+   1. 规则一：访问： /webjars/**路径就去 classpath:/META-INF/resources/webjars/下找资源.
+    a. maven 导入依赖
+    b.
+   2. 规则二：访问： /**路径就去 静态资源默认的四个位置找资源
+     a. classpath:/META-INF/resources/
+     b. classpath:/resources/
+     c. classpath:/static/
+     d. classpath:/public/
+   3. 规则三：静态资源默认都有缓存规则的设置
+     a. 所有缓存的设置，直接通过配置文件： spring.web
+     b. cachePeriod： 缓存周期； 多久不用找服务器要新的。 默认没有，以s为单位
+     c. cacheControl： HTTP缓存控制；https://developer.mozilla.org/zh-CN/docs/Web/HTTP/Caching
+     d. useLastModified：是否使用最后一次修改。配合HTTP Cache规则
+如果浏览器访问了一个静态资源 index.js，如果服务这个资源没有发生变化，下次访问的时候就可以直接让浏览器用自己缓存中的东西，而不用给服务器发请求。
+####################
+11.EnableWebMvcConfiguration 源码
+//SpringBoot 给容器中放 WebMvcConfigurationSupport 组件。
+//我们如果自己放了 WebMvcConfigurationSupport 组件，Boot的WebMvcAutoConfiguration都会失效。
+@Configuration(proxyBeanMethods = false)
+@EnableConfigurationProperties(WebProperties.class)
+public static class EnableWebMvcConfiguration extends DelegatingWebMvcConfiguration implements ResourceLoaderAware
+{
+
+
+}
+   1. HandlerMapping： 根据请求路径  /a 找那个handler能处理请求
+    a. WelcomePageHandlerMapping：
+    ⅰ. 访问 /**路径下的所有请求，都在以前四个静态资源路径下找，欢迎页也一样
+    ⅱ. 找index.html：只要静态资源的位置有一个 index.html页面，项目启动默认访问
+12.自定义静态资源规则
+   自定义静态资源路径、自定义缓存规则
+   1. 配置方式
+   spring.mvc： 静态资源访问前缀路径
+   spring.web：
+   ● 静态资源目录
+   ● 静态资源缓存策略
+   #1、spring.web：
+   # 1.配置国际化的区域信息
+   # 2.静态资源策略(开启、处理链、缓存)
+
+   #开启静态资源映射规则
+   spring.web.resources.add-mappings=true
+
+   #设置缓存
+   spring.web.resources.cache.period=3600
+   ##缓存详细合并项控制，覆盖period配置：
+   ## 浏览器第一次请求服务器，服务器告诉浏览器此资源缓存7200秒，7200秒以内的所有此资源访问不用发给服务器请求，7200秒以后发请求给服务器
+   spring.web.resources.cache.cachecontrol.max-age=7200
+   ## 共享缓存
+   spring.web.resources.cache.cachecontrol.cache-public=true
+   #使用资源 last-modified 时间，来对比服务器和浏览器的资源是否相同没有变化。相同返回 304
+   spring.web.resources.cache.use-last-modified=true
+
+   #自定义静态资源文件夹位置
+   spring.web.resources.static-locations=classpath:/a/,classpath:/b/,classpath:/static/
+
+   #2、 spring.mvc
+   ## 2.1. 自定义webjars路径前缀
+   spring.mvc.webjars-path-pattern=/wj/**
+   ## 2.2. 静态资源访问路径前缀
+   spring.mvc.static-path-pattern=/static/**
+

@@ -2,7 +2,7 @@
 ################
 1.获取到vue脚手架之后，查看user.js，可以看到有三个接口，因此后端建立对应的三个接口。
 三个接口分别是：login(登录)、info(获取信息)以及logout(退出登录)
-##########
+################
 启动时遇到的问题：
     [restartedMain] o.s.b.d.LoggingFailureAnalysisReporter
 原因分析：
@@ -21,5 +21,11 @@ DataSourceAutoConfiguration类使用了@Configuration注解向spring注入了dat
 编写用户管理接口：
   1.角色分页列表接口
   创建RoleController,创建RoleService,创建RoleMapper，其中RoleMapper继承BaseMapper（用mp进行分页）
-  在RoleController中通过Page分页，RoleServiceImpl编写具体的实现类，实现selectRolePage方法，并通过
+  在RoleController中通过Page分页，RoleServiceImpl编写具体的实现类，通过实现ServiceImpl接口，进一步使用selectRolePage方法，并通过
   创建mp条件对象，进行查询，返回符合条件的结果。
+  2.增删改查接口，通过RoleService实现IService接口，调用其中对应的增删改查方法实现接口。
+########################
+使用mysql遇到的问题：
+项目中使用的是mysql8版本，而自己的本地是mysql5.5，解决方式主要有两个：
+1.升级mysql版本
+2.更改对应的sql语句（这是我用到的）

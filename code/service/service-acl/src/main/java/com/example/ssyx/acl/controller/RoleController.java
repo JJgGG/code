@@ -17,7 +17,8 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/admin/acl/role")
-@Api(tags = "用户管理")
+@Api(tags = "角色接口")
+@CrossOrigin //跨域
 public class RoleController {
     @Autowired
     private RoleService roleService;
@@ -43,11 +44,23 @@ public class RoleController {
         Role role = roleService.getById(id);
         return Result.ok(role);
     }
-    @ApiOperation(value = "新增角色")
-    @PostMapping("update")
-    public Result updateById(@RequestBody Role role){
-        boolean b = roleService.updateById(role);
-        return Result.ok(b);
+
+    @ApiOperation("添加角色")
+    @PostMapping("save")
+    public Result save(@RequestBody Role role) {
+        boolean is_success = roleService.save(role);
+        if(is_success) {
+            return Result.ok(null);
+        } else {
+            return Result.fail(null);
+        }
+    }
+
+    @ApiOperation("修改角色")
+    @PutMapping("update")
+    public Result update(@RequestBody Role role) {
+        roleService.updateById(role);
+        return Result.ok(null);
     }
 
     @ApiOperation(value = "删除角色")

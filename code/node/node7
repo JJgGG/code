@@ -1,0 +1,64 @@
+2023年9月7日
+#########################
+@Configuration //这是一个配置类,给容器中放一个 WebMvcConfigurer 组件，就能自定义底层
+public class MyConfig  /*implements WebMvcConfigurer*/ {
+
+
+    @Bean
+    public WebMvcConfigurer webMvcConfigurer(){
+        return new WebMvcConfigurer() {
+            @Override
+            public void addResourceHandlers(ResourceHandlerRegistry registry) {
+                registry.addResourceHandler("/static/**")
+                        .addResourceLocations("classpath:/a/", "classpath:/b/")
+                        .setCacheControl(CacheControl.maxAge(1180, TimeUnit.SECONDS));
+            }
+        };
+    }
+
+}
+############################
+为什么容器中放一个WebMvcConfigurer就能配置底层行为
+1. WebMvcAutoConfiguration 是一个自动配置类，它里面有一个 EnableWebMvcConfiguration
+2. EnableWebMvcConfiguration继承与 DelegatingWebMvcConfiguration，这两个都生效
+3. DelegatingWebMvcConfiguration利用 DI 把容器中 所有 WebMvcConfigurer 注入进来
+4. 别人调用 `DelegatingWebMvcConfiguration` 的方法配置底层规则，而它调用所有 WebMvcConfigurer的配置底层方法。
+###########################
+ Ant风格路径用法
+Ant 风格的路径模式语法具有以下规则：
+● *：表示任意数量的字符。
+● ?：表示任意一个字符。
+● **：表示任意数量的目录。
+● {}：表示一个命名的模式占位符。
+● []：表示字符集合，例如[a-z]表示小写字母。
+例如：
+● *.html 匹配任意名称，扩展名为.html的文件。
+● /folder1/*/*.java 匹配在folder1目录下的任意两级目录下的.java文件。
+● /folder2/**/*.jsp 匹配在folder2目录下任意目录深度的.jsp文件。
+● /{type}/{id}.html 匹配任意文件名为{id}.html，在任意命名的{type}目录下的文件。
+注意：Ant 风格的路径模式语法中的特殊字符需要转义，如：
+● 要匹配文件路径中的星号，则需要转义为\\*。
+● 要匹配文件路径中的问号，则需要转义为\\?。
+################################
+ 模式切换
+AntPathMatcher 与 PathPatternParser
+● PathPatternParser 在 jmh 基准测试下，有 6~8 倍吞吐量提升，降低 30%~40%空间分配率
+● PathPatternParser 兼容 AntPathMatcher语法，并支持更多类型的路径模式
+● PathPatternParser  "**" 多段匹配的支持仅允许在模式末尾使用
+    @GetMapping("/a*/b?/{p1:[a-f]+}")
+    public String hello(HttpServletRequest request,
+                        @PathVariable("p1") String path) {
+
+        log.info("路径变量p1： {}", path);
+        //获取请求路径
+        String uri = request.getRequestURI();
+        return uri;
+    }
+总结：
+使用默认的路径匹配规则，是由 PathPatternParser  提供的
+如果路径中间需要有 **，替换成ant风格路径
+# 改变路径匹配策略：
+# ant_path_matcher 老版策略；
+# path_pattern_parser 新版策略；
+spring.mvc.pathmatch.matching-strategy=ant_path_matcher
+###############################

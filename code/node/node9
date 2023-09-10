@@ -1,0 +1,37 @@
+2023年9月8号
+##############################
+多端内容适配
+1. 默认规则
+1. SpringBoot 多端内容适配。
+  1.1. 基于请求头内容协商：（默认开启）
+    1.1.1. 客户端向服务端发送请求，携带HTTP标准的Accept请求头。
+      1.1.1.1. Accept: application/json、text/xml、text/yaml
+      1.1.1.2. 服务端根据客户端请求头期望的数据类型进行动态返回
+  1.2. 基于请求参数内容协商：（需要开启）
+    1.2.1. 发送请求 GET /projects/spring-boot?format=json
+    1.2.2. 匹配到 @GetMapping("/projects/spring-boot")
+    1.2.3. 根据参数协商，优先返回 json 类型数据【需要开启参数匹配设置】
+    1.2.4. 发送请求 GET /projects/spring-boot?format=xml,优先返回 xml 类型数据
+###############################
+效果演示
+请求同一个接口，可以返回json和xml不同格式数据（json不需要再导入依赖，xml需要导入依赖）
+1. 引入支持写出xml内容依赖
+<dependency>
+    <groupId>com.fasterxml.jackson.dataformat</groupId>
+    <artifactId>jackson-dataformat-xml</artifactId>
+</dependency>
+2. 标注注解
+@JacksonXmlRootElement  // 可以写出为xml文档
+@Data
+public class Person {
+    private Long id;
+    private String userName;
+    private String email;
+    private Integer age;
+}
+3. 开启基于请求参数的内容协商
+# 开启基于请求参数的内容协商功能。 默认参数名：format。 默认此功能不开启
+spring.mvc.contentnegotiation.favor-parameter=true
+# 指定内容协商时使用的参数名。默认是 format
+spring.mvc.contentnegotiation.parameter-name=type
+

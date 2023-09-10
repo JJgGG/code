@@ -2,6 +2,7 @@ package com.example.ssyx.acl.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.ssyx.acl.service.PermissionService;
 import com.example.ssyx.acl.service.RoleService;
 import com.example.ssyx.common.result.Result;
 import com.example.ssyx.model.acl.Role;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/admin/acl/role")
@@ -22,6 +24,9 @@ import java.util.List;
 public class RoleController {
     @Autowired
     private RoleService roleService;
+
+    @Autowired
+    private PermissionService permissionService;
 
     @ApiOperation(value = "获取角色分页列表")
     @GetMapping("{page}/{limit}")
@@ -73,5 +78,20 @@ public class RoleController {
     @DeleteMapping("batchRemove")
     public Result batchRemove(@RequestBody List<Long> idList) {
         return Result.ok(roleService.removeByIds(idList));
+    }
+
+    //根据用户分配角色
+    @ApiOperation("根据用户分配角色")
+    @PostMapping("/doAssign")
+    public Result doAssign(@RequestParam Long roleId,@RequestParam Long[] permissionId){
+        permissionService.saveUserPermissionRelationShip(roleId,permissionId);
+        return Result.ok(null);
+    }
+    //根据角色获取菜单信息
+    @ApiOperation("根据角色获取菜单数据")
+    @GetMapping("toAssign/{roleId}")
+    public Result toAssign(@PathVariable Long roleId){
+        Map<String,Object> PermissionMap = permissionService.findPermisionByRoleId(roleId);
+        return Result.ok(PermissionMap);
     }
 }

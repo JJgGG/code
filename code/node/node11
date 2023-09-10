@@ -1,0 +1,33 @@
+2023年9月10日
+###############################
+内容协商原理-HttpMessageConverter
+@ResponseBody由HttpMessageConverter处理
+标注了@ResponseBody的返回值 将会由支持它的 HttpMessageConverter写给浏览器
+1. 如果controller方法的返回值标注了 @ResponseBody 注解
+  1.1. 请求进来先来到DispatcherServlet的doDispatch()进行处理
+  1.2. 找到一个 HandlerAdapter 适配器。利用适配器执行目标方法
+  1.3. RequestMappingHandlerAdapter来执行，调用invokeHandlerMethod（）来执行目标方法
+  1.4. 目标方法执行之前，准备好两个东西
+    1.4.1. HandlerMethodArgumentResolver：参数解析器，确定目标方法每个参数值
+    1.4.2. HandlerMethodReturnValueHandler：返回值处理器，确定目标方法的返回值改怎么处理
+  1.5. RequestMappingHandlerAdapter 里面的invokeAndHandle()真正执行目标方法
+  1.6. 目标方法执行完成，会返回返回值对象
+  1.7. 找到一个合适的返回值处理器 HandlerMethodReturnValueHandler
+  1.8. 最终找到 RequestResponseBodyMethodProcessor能处理 标注了 @ResponseBody注解的方法
+  1.9. RequestResponseBodyMethodProcessor 调用writeWithMessageConverters ,利用MessageConverter把返回值写出去
+2. HttpMessageConverter 会先进行内容协商
+    2.1. 遍历所有的MessageConverter看谁支持这种内容类型的数据
+    2.2. 默认MessageConverter有json
+    2.3. 最终因为要json所以MappingJackson2HttpMessageConverter支持写出json
+    2.4. jackson用ObjectMapper把对象写出去
+####################################################################################################
+WebMvcAutoConfiguration提供几种默认HttpMessageConverters
+● EnableWebMvcConfiguration通过 addDefaultHttpMessageConverters添加了默认的MessageConverter；如下：
+  ○ ByteArrayHttpMessageConverter： 支持字节数据读写
+  ○ StringHttpMessageConverter： 支持字符串读写
+  ○ ResourceHttpMessageConverter：支持资源读写
+  ○ ResourceRegionHttpMessageConverter: 支持分区资源写出
+  ○ AllEncompassingFormHttpMessageConverter：支持表单xml/json读写
+  ○ MappingJackson2HttpMessageConverter： 支持请求响应体Json读写
+系统提供默认的MessageConverter 功能有限，仅用于json或者普通返回数据。额外增加新的内容协商功能，必须增加新的HttpMessageConverter
+

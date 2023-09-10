@@ -16,10 +16,10 @@ public class GlobalExceptionHandler {
         return Result.fail(null);
     }
 
+    //自定义异常处理
     @ExceptionHandler(SSyxException.class)
     @ResponseBody
-    public Result error(SSyxException exception){
-        exception.printStackTrace();
-        return Result.fail(null);
+    public Result error(SSyxException exception) {
+        return Result.build(null,exception.getCode(),exception.getMessage());
     }
 }

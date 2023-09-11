@@ -1,0 +1,37 @@
+2023年9月10号
+############################
+/**
+     * 开通区域列表
+     *
+     * @param page1
+     * @param regionWareQueryVo
+     * @return
+     */
+    @Override
+    public IPage<RegionWare> selectPageRegionWare(Page<RegionWare> page1, RegionWareQueryVo regionWareQueryVo) {
+        //获取条件值
+        String keyword = regionWareQueryVo.getKeyword();
+        //根据条件值进行查询
+        LambdaQueryWrapper<RegionWare> wrapper = new LambdaQueryWrapper<>();
+        if (!StringUtils.isEmpty(keyword)) {
+            wrapper.like(RegionWare::getRegionName, keyword).or().like(RegionWare::getWareName, keyword);
+        }
+        IPage<RegionWare> ipage = baseMapper.selectPage(page1, wrapper);
+        return ipage;
+    }
+
+    /**
+     * 添加开通区域
+     *
+     * @param regionWare
+     */
+    @Override
+    public void saveRegionWare(RegionWare regionWare) {
+        LambdaQueryWrapper<RegionWare> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(RegionWare::getRegionId, regionWare.getRegionId());
+        Integer count = regionWareMapper.selectCount(wrapper);
+        if(count > 0){
+            throw new SSyxException(ResultCodeEnum.REGION_OPEN);
+        }
+        baseMapper.insert(regionWare);
+    }

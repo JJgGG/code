@@ -1,0 +1,66 @@
+2023年9月11日
+###############################
+Thymeleaf官网：https://www.thymeleaf.org/
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Good Thymes Virtual Grocery</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link rel="stylesheet" type="text/css" media="all" th:href="@{/css/gtvg.css}" />
+</head>
+<body>
+	<p th:text="#{home.welcome}">Welcome to our grocery store!</p>
+</body
+</html>
+#################################
+ Thymeleaf整合
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-thymeleaf</artifactId>
+</dependency>
+自动配置原理
+1. 开启了 org.springframework.boot.autoconfigure.thymeleaf.ThymeleafAutoConfiguration 自动配置
+2. 属性绑定在 ThymeleafProperties 中，对应配置文件 spring.thymeleaf 内容
+3. 所有的模板页面默认在 classpath:/templates文件夹下
+4. 默认效果
+  a. 所有的模板页面在 classpath:/templates/下面找
+  b. 找后缀名为.html的页面
+################################
+基础语法
+1. 核心用法
+th:xxx：动态渲染指定的 html 标签属性值、或者th指令（遍历、判断等）
+● th:text：标签体内文本值渲染
+  ○ th:utext：不会转义，显示为html原本的样子。
+● th:属性：标签指定属性渲染
+● th:attr：标签任意属性渲染
+● th:ifth:each...：其他th指令
+表达式：用来动态取值
+● ${}：变量取值；使用model共享给页面的值都直接用${}
+● @{}：url路径；
+● #{}：国际化消息
+● ~{}：片段引用
+● *{}：变量选择：需要配合th:object绑定对象
+###############################
+遍历
+语法：  th:each="元素名,迭代状态 : ${集合}"
+<tr th:each="prod : ${prods}">
+  <td th:text="${prod.name}">Onions</td>
+  <td th:text="${prod.price}">2.41</td>
+  <td th:text="${prod.inStock}? #{true} : #{false}">yes</td>
+</tr>
+
+<tr th:each="prod,iterStat : ${prods}" th:class="${iterStat.odd}? 'odd'">
+  <td th:text="${prod.name}">Onions</td>
+  <td th:text="${prod.price}">2.41</td>
+  <td th:text="${prod.inStock}? #{true} : #{false}">yes</td>
+</tr>
+iterStat 有以下属性：
+● index：当前遍历元素的索引，从0开始
+● count：当前遍历元素的索引，从1开始
+● size：需要遍历元素的总数量
+● current：当前正在遍历的元素对象
+● even/odd：是否偶数/奇数行
+● first：是否第一个元素
+● last：是否最后一个元素
+#####################################

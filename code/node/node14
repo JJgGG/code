@@ -1,0 +1,55 @@
+2023年9月11日
+##############################
+新增根据关键字进行查询区域的接口
+    @ApiOperation("根据区域关键字查询区域列表信息")
+    @GetMapping("findRegionByKeyword/{keyword}")
+    public Result findRegionByKeyword(@PathVariable String keyword){
+        List<Region> list = regionService.getRegionByKeyword(keyword);
+        return Result.ok(list);
+    }
+新增查询所有仓库列表接口
+    @ApiOperation("查询所有仓库列表")
+    @GetMapping("findAllList")
+    public Result findAllList() {
+        List<Ware> list = wareService.list();
+        return Result.ok(list);
+    }
+    @ApiOperation("添加开通区域")
+    @PostMapping("save")
+    public Result save(@RequestBody RegionWare regionWare){
+        regionWareService.saveRegionWare(regionWare);
+        return Result.ok(null);
+    }
+
+//删除开通区域接口
+    @ApiOperation("删除开通区域")
+    @DeleteMapping("remove/{id}")
+    public Result remove(@PathVariable Long id) {
+        regionWareService.removeById(id);
+        return Result.ok(null);
+    }
+
+取消开通区域接口
+    @ApiOperation("取消开通区域")
+    @PostMapping("updateStatus/{id}/{status}")
+    public Result updateStatus(@PathVariable Long id,
+                               @PathVariable Integer status) {
+        regionWareService.updateStatus(id,status);
+        return Result.ok(null);
+    }
+####################################
+使用nigix反向代理访问不同的端口。
+server {
+        listen       9001;
+        server_name  localhost;
+
+        location ~ /acl/ {
+            proxy_pass http://localhost:8201;
+        }
+
+        location ~ /sys/ {
+            proxy_pass http://localhost:8202;
+        }
+    }
+######################################################
+开发商品分类接口、开发平台属性分组接口

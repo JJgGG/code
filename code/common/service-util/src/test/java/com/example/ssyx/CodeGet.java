@@ -20,7 +20,7 @@ public class CodeGet {
         // 2、全局配置
         // 全局配置
         GlobalConfig gc = new GlobalConfig();
-        gc.setOutputDir("E:\\springBoot\\code\\service\\service-sys"+"/src/main/java");
+        gc.setOutputDir("E:\\springBoot\\code\\service\\service-product"+"/src/main/java");
 
         gc.setServiceName("%sService");	//去掉Service接口的首字母I
         gc.setAuthor("example");
@@ -29,7 +29,7 @@ public class CodeGet {
 
         // 3、数据源配置
         DataSourceConfig dsc = new DataSourceConfig();
-        dsc.setUrl("jdbc:mysql://localhost:3306/shequ-sys");
+        dsc.setUrl("jdbc:mysql://localhost:3306/shequ-product");
         dsc.setDriverName("com.mysql.jdbc.Driver");
         dsc.setUsername("root");
         dsc.setPassword("7305");
@@ -40,7 +40,7 @@ public class CodeGet {
         PackageConfig pc = new PackageConfig();
         // com.atguigu.ssyx.product.
         pc.setParent("com.example.ssyx");
-        pc.setModuleName("sys"); //模块名
+        pc.setModuleName("product"); //模块名
         pc.setController("controller");
         pc.setService("service");
         pc.setMapper("mapper");
@@ -49,7 +49,7 @@ public class CodeGet {
         // 5、策略配置
         StrategyConfig strategy = new StrategyConfig();
 
-        strategy.setInclude("region","ware","region_ware");
+        strategy.setInclude("attr","attr_group","category","sku_info","sku_attr_value","sku_poster","sku_image");
 
         strategy.setNaming(NamingStrategy.underline_to_camel);//数据库表映射到实体的命名策略
 

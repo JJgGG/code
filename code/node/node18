@@ -1,0 +1,71 @@
+2023年9月13号
+#######################
+实现修改sku信息的接口，首先我们需要分两步进行，
+第一，需要获取sku的信息，其次才是修改sku的信息。
+    //获取sku信息
+    @Override
+    public SkuInfoVo getSkuInfo(Long id) {
+        SkuInfoVo skuInfoVo = new SkuInfoVo();
+
+        //根据id查询sku基本信息
+        SkuInfo skuInfo = baseMapper.selectById(id);
+
+        //根据id查询商品图片列表
+        List<SkuImage> skuImageList = skuImageService.getImageListBySkuId(id);
+
+        //根据id查询商品海报列表
+        List<SkuPoster> skuPosterList = skuPosterService.getPosterListBySkuId(id);
+
+        //根据id查询商品属性信息列表
+        List<SkuAttrValue> skuAttrValueList = skuAttrValueService.getAttrValueListBySkuId(id);
+
+        //封装所有数据，返回
+        BeanUtils.copyProperties(skuInfo,skuInfoVo);
+        skuInfoVo.setSkuImagesList(skuImageList);
+        skuInfoVo.setSkuPosterList(skuPosterList);
+        skuInfoVo.setSkuAttrValueList(skuAttrValueList);
+        return skuInfoVo;
+    }
+   //修改sku的信息
+   值得注意的是，在修改sku信息的时候，我们需要先进行信息的删除，删除原本本来存在的信息，再进行sku的添加。
+   这里以修改海报信息为例进行展示：
+    //海报信息
+           LambdaQueryWrapper<SkuPoster> wrapperSkuPoster = new LambdaQueryWrapper<>();
+           wrapperSkuPoster.eq(SkuPoster::getSkuId,skuId);
+           skuPosterService.remove(wrapperSkuPoster);
+
+           List<SkuPoster> skuPosterList = skuInfoVo.getSkuPosterList();
+           if(!CollectionUtils.isEmpty(skuPosterList)) {
+               //遍历，向每个海报对象添加商品skuid
+               for (SkuPoster skuPoster:skuPosterList) {
+                   skuPoster.setSkuId(skuId);
+               }
+               skuPosterService.saveBatch(skuPosterList);
+           }
+#############################################################
+ 什么是Spring Cloud
+Spring Cloud是一系列框架的集合。它利用Spring Boot的开发便利性简化了分布式系统基础设施的开发，
+如服务发现、服务注册、配置中心、消息总线、负载均衡、 熔断器、数据监控等，都可以用Spring Boot的开发风格做到一键启动和部署。
+Spring并没有重复制造轮子，它只是将目前各家公司开发的比较成熟、经得起实际考验的服务框架组合起来，
+通过SpringBoot风格进行再封装屏蔽掉了复杂的配置和实现原理，最终给开发者留出了一套简单易懂、易部署和易维护的分布式系统开发工具包
+
+Spring Cloud和Spring Boot是什么关系
+Spring Boot 是 Spring 的一套快速配置脚手架，可以基于Spring Boot 快速开发单个微服务，
+Spring Cloud是一个基于Spring Boot实现的开发工具；Spring Boot专注于快速、方便集成的单个微服务个体，
+Spring Cloud关注全局的服务治理框架； Spring Boot使用了默认大于配置的理念，很多集成方案已经帮你选择好了，
+能不配置就不配置，Spring Cloud很大的一部分是基于Spring Boot来实现，必须基于Spring Boot开发。可以单独使用Spring Boot开发项目，
+但是Spring Cloud离不开 Spring Boot。
+
+Spring Cloud主要基础服务组件
+服务发现——Netflix Eureka （Nacos）
+服务调用——Netflix Feign
+熔断器——Netflix Hystrix （Sentinel）
+服务网关——Spring Cloud GateWay
+分布式配置——Spring Cloud Config  （Nacos）
+####################################################
+启动nacos服务
+- Linux/Unix/Mac
+启动命令(standalone代表着单机模式运行，非集群模式)
+启动命令：sh startup.sh -m standalone,在windows上面使用命令 startup.cmd -m standalone
+####################################################
+

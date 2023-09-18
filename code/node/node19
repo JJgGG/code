@@ -1,0 +1,34 @@
+2023年9月14号
+####################################
+整合SSM场景
+SpringBoot 整合 Spring、SpringMVC、MyBatis 进行数据访问场景开发
+1. 创建SSM整合项目
+<!-- https://mvnrepository.com/artifact/org.mybatis.spring.boot/mybatis-spring-boot-starter -->
+<dependency>
+    <groupId>org.mybatis.spring.boot</groupId>
+    <artifactId>mybatis-spring-boot-starter</artifactId>
+    <version>3.0.1</version>
+</dependency>
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <scope>runtime</scope>
+</dependency>
+2. 配置数据源
+spring.datasource.url=jdbc:mysql://127.0.0.1:3306/demo
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+spring.datasource.username=root
+spring.datasource.password=123456
+spring.datasource.type=com.zaxxer.hikari.HikariDataSource
+安装MyBatisX 插件，帮我们生成Mapper接口的xml文件即可
+3. 配置MyBatis
+#指定mapper映射文件位置
+mybatis.mapper-locations=classpath:/mapper/*.xml
+#参数项调整
+mybatis.configuration.map-underscore-to-camel-case=true
+4. CRUD编写
+● 编写Bean
+● 编写Mapper
+● 使用mybatisx插件，快速生成MapperXML
+● 测试CRUD
+###################################################

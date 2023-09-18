@@ -1,0 +1,115 @@
+2023年9月18号
+#######################################
+ Profiles
+环境隔离能力；快速切换开发、测试、生产环境
+步骤：
+1. 标识环境：指定哪些组件、配置在哪个环境生效
+2. 切换环境：这个环境对应的所有组件和配置就应该生效
+2.1. 使用
+2.1.1 指定环境
+● Spring Profiles 提供一种隔离配置的方式，使其仅在特定环境生效；
+● 任何@Component, @Configuration 或 @ConfigurationProperties 可以使用 @Profile 标记，来指定何时被加载。【容器中的组件都可以被 @Profile标记】
+
+2.1.2 环境激活
+1. 配置激活指定环境； 配置文件
+spring.profiles.active=production,hsqldb
+2. 也可以使用命令行激活。--spring.profiles.active=dev,hsqldb
+3. 还可以配置默认环境； 不标注@Profile 的组件永远都存在。
+  a. 以前默认环境叫default
+  b. spring.profiles.default=test
+4. 推荐使用激活方式激活指定环境
+
+
+2.1.3 环境包含
+注意：
+1. spring.profiles.active 和spring.profiles.default 只能用到 无 profile 的文件中，如果在application-dev.yaml中编写就是无效的
+2. 也可以额外添加生效文件，而不是激活替换。比如：
+spring.profiles.include[0]=common
+spring.profiles.include[1]=local
+
+
+最佳实战：
+● 生效的环境 = 激活的环境/默认环境  + 包含的环境
+● 项目里面这么用
+  ○ 基础的配置mybatis、log、xxx：写到包含环境中
+  ○ 需要动态切换变化的 db、redis：写到激活的环境中
+2.2. Profile 分组
+创建prod组，指定包含db和mq配置
+spring.profiles.group.prod[0]=db
+spring.profiles.group.prod[1]=mq
+使用--spring.profiles.active=prod ，就会激活prod，db，mq配置文件
+
+2.3. Profile 配置文件
+● application-{profile}.properties可以作为指定环境的配置文件。
+● 激活这个环境，配置就会生效。最终生效的所有配置是
+  ○ application.properties：主配置文件，任意时候都生效
+  ○ application-{profile}.properties：指定环境配置文件，激活指定环境生效
+profile优先级 > application
+#############################################################################################
+外部化配置
+场景：线上应用如何快速修改配置，并应用最新配置？
+● SpringBoot 使用  配置优先级 + 外部配置  简化配置更新、简化运维。
+● 只需要给jar应用所在的文件夹放一个application.properties最新配置文件，重启项目就能自动应用最新配置
+
+3.1. 配置优先级
+Spring Boot 允许将配置外部化，以便可以在不同的环境中使用相同的应用程序代码。
+我们可以使用各种外部配置源，包括Java Properties文件、YAML文件、环境变量和命令行参数。
+@Value可以获取值，也可以用@ConfigurationProperties将所有属性绑定到java object中
+以下是 SpringBoot 属性源加载顺序。后面的会覆盖前面的值。由低到高，高优先级配置覆盖低优先级
+1. 默认属性（通过SpringApplication.setDefaultProperties指定的）
+2. @PropertySource指定加载的配置（需要写在@Configuration类上才可生效）
+3. 配置文件（application.properties/yml等）
+4. RandomValuePropertySource支持的random.*配置（如：@Value("${random.int}")）
+5. OS 环境变量
+6. Java 系统属性（System.getProperties()）
+7. JNDI 属性（来自java:comp/env）
+8. ServletContext 初始化参数
+9. ServletConfig 初始化参数
+10. SPRING_APPLICATION_JSON属性（内置在环境变量或系统属性中的 JSON）
+11. 命令行参数
+12. 测试属性。(@SpringBootTest进行测试时指定的属性)
+13. 测试类@TestPropertySource注解
+14. Devtools 设置的全局属性。($HOME/.config/spring-boot)
+结论：配置可以写到很多位置，常见的优先级顺序：
+● 命令行> 配置文件> springapplication配置
+
+配置文件优先级如下：(后面覆盖前面)
+1. jar 包内的application.properties/yml
+2. jar 包内的application-{profile}.properties/yml
+3. jar 包外的application.properties/yml
+4. jar 包外的application-{profile}.properties/yml
+建议：用一种格式的配置文件。如果.properties和.yml同时存在,则.properties优先
+结论：包外 > 包内； 同级情况：profile配置 > application配置
+所有参数均可由命令行传入，使用--参数项=参数值，将会被添加到环境变量中，并优先于配置文件。
+比如java -jar app.jar --name="Spring",可以使用@Value("${name}")获取
+
+演示场景：
+● 包内： application.properties   server.port=8000
+● 包内： application-dev.properties    server.port=9000
+● 包外：  application.properties   server.port=8001
+● 包外： application-dev.properties    server.port=9001
+启动端口？：命令行 > 9001 > 8001 > 9000 > 8000
+
+3.2. 外部配置
+SpringBoot 应用启动时会自动寻找application.properties和application.yaml位置，进行加载。顺序如下：（后面覆盖前面）
+1. 类路径: 内部
+  a. 类根路径
+  b. 类下/config包
+2. 当前路径（项目所在的位置）
+  a. 当前路径
+  b. 当前下/config子目录
+  c. /config目录的直接子目录
+
+
+最终效果：优先级由高到低，前面覆盖后面
+● 命令行 > 包外config直接子目录 > 包外config目录 > 包外根目录 > 包内目录
+● 同级比较：
+  ○ profile配置 > 默认配置
+  ○ properties配置 > yaml配置
+
+  规律：最外层的最优先。
+  ● 命令行 > 所有
+  ● 包外 > 包内
+  ● config目录 > 根目录
+  ● profile > application
+  配置不同就都生效（互补），配置相同高优先级覆盖低优先级

@@ -31,3 +31,5 @@ RabbitMQ就是这样一款消息队列。RabbitMQ是一个开源的消息代理�
 
 安装rabbitmq时需要先安装erlang环境再进行rabbitmq的安装。
 
+nacos启动startup.cmd -m standalone
+

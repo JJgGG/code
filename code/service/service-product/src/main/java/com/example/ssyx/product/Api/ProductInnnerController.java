@@ -1,4 +1,4 @@
-package com.example.ssyx.search.Api;
+package com.example.ssyx.product.Api;
 
 import com.example.ssyx.model.product.Category;
 import com.example.ssyx.model.product.SkuInfo;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/product")
-public class ProductInnerController {
+public class ProductInnnerController {
 
     @Autowired
     private CategoryService categoryService;

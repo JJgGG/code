@@ -12,6 +12,20 @@ spring:
     url: jdbc:mysql://localhost:3306/shequ-product
     username: root
     password: 7305
+
+    rabbitmq:
+      host: 127.0.0.1
+      port: 15672
+      username: guest
+      password: guest
+      publisher-confirm-type: CORRELATED  #发布确认模式，消息是否被成功发送到交换机
+      publisher-returns: true
+      listener:
+        simple:
+          prefetch: 1
+          concurrency: 3
+          acknowledge-mode: manual   #消费端手动确认
+
   redis:
     host: localhost
     port: 6379

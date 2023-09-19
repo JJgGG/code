@@ -33,3 +33,9 @@ RabbitMQ就是这样一款消息队列。RabbitMQ是一个开源的消息代理�
 
 nacos启动startup.cmd -m standalone
 
+在push过程中屡次遇见报错：
+Push failed unable to access 'https://github.com/JJgGG/code.git/': Failed to connect to github.com port 443
+在终端使用以下命令进行解决：
+ git config --global --unset http.proxy
+ git config --global --unset https.proxy
+

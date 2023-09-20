@@ -1,4 +1,4 @@
-package com.atguigu.ssyx.mq.constant;
+package com.example.ssyx.mq.constant;
 
 public class MqConst {
     /**

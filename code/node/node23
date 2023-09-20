@@ -1,0 +1,121 @@
+2023年9月19号
+##################################################
+单元测试-JUnit5
+4.1. 整合
+SpringBoot 提供一系列测试工具集及注解方便我们进行测试。
+spring-boot-test提供核心测试能力，spring-boot-test-autoconfigure 提供测试的一些自动配置。
+我们只需要导入spring-boot-starter-test 即可整合测试
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-test</artifactId>
+    <scope>test</scope>
+</dependency>
+
+spring-boot-starter-test 默认提供了以下库供我们测试使用
+● JUnit 5
+● Spring Test
+● AssertJ
+● Hamcrest
+● Mockito
+● JSONassert
+● JsonPath
+
+4.2. 测试
+4.2.0 组件测试
+直接@Autowired容器中的组件进行测试
+4.2.1 注解
+JUnit5的注解与JUnit4的注解有所变化
+https://junit.org/junit5/docs/current/user-guide/#writing-tests-annotations
+● @Test :表示方法是测试方法。但是与JUnit4的@Test不同，他的职责非常单一不能声明任何属性，拓展的测试将会由Jupiter提供额外测试
+● @ParameterizedTest :表示方法是参数化测试，下方会有详细介绍
+● @RepeatedTest :表示方法可重复执行，下方会有详细介绍
+● @DisplayName :为测试类或者测试方法设置展示名称
+● @BeforeEach :表示在每个单元测试之前执行
+● @AfterEach :表示在每个单元测试之后执行
+● @BeforeAll :表示在所有单元测试之前执行
+● @AfterAll :表示在所有单元测试之后执行
+● @Tag :表示单元测试类别，类似于JUnit4中的@Categories
+● @Disabled :表示测试类或测试方法不执行，类似于JUnit4中的@Ignore
+● @Timeout :表示测试方法运行如果超过了指定时间将会返回错误
+● @ExtendWith :为测试类或测试方法提供扩展类引用
+####################################################################################
+断言
+方法	说明
+assertEquals	判断两个对象或两个原始类型是否相等
+assertNotEquals	判断两个对象或两个原始类型是否不相等
+assertSame	判断两个对象引用是否指向同一个对象
+assertNotSame	判断两个对象引用是否指向不同的对象
+assertTrue	判断给定的布尔值是否为 true
+assertFalse	判断给定的布尔值是否为 false
+assertNull	判断给定的对象引用是否为 null
+assertNotNull	判断给定的对象引用是否不为 null
+assertArrayEquals	数组断言
+assertAll	组合断言
+assertThrows	异常断言
+assertTimeout	超时断言
+fail	快速失败
+#######################################################################################
+生命周期监听
+场景：监听应用的生命周期
+1. 监听器-SpringApplicationRunListener
+1. 自定义SpringApplicationRunListener来监听事件；
+  1.1. 编写SpringApplicationRunListener 实现类
+  1.2. 在 META-INF/spring.factories 中配置 org.springframework.boot.SpringApplicationRunListener=自己的Listener，还可以指定一个有参构造器，接受两个参数(SpringApplication application, String[] args)
+  1.3. springboot 在spring-boot.jar中配置了默认的 Listener
+
+  /**
+   * Listener先要从 META-INF/spring.factories 读到
+   *
+   * 1、引导： 利用 BootstrapContext 引导整个项目启动
+   *      starting：              应用开始，SpringApplication的run方法一调用，只要有了 BootstrapContext 就执行
+   *      environmentPrepared：   环境准备好（把启动参数等绑定到环境变量中），但是ioc还没有创建；【调一次】
+   * 2、启动：
+   *      contextPrepared：       ioc容器创建并准备好，但是sources（主配置类）没加载。并关闭引导上下文；组件都没创建  【调一次】
+   *      contextLoaded：         ioc容器加载。主配置类加载进去了。但是ioc容器还没刷新（我们的bean没创建）。
+   *      =======截止以前，ioc容器里面还没造bean呢=======
+   *      started：               ioc容器刷新了（所有bean造好了），但是 runner 没调用。
+   *      ready:                  ioc容器刷新了（所有bean造好了），所有 runner 调用完了。
+   * 3、运行
+   *     以前步骤都正确执行，代表容器running。
+   */
+ ###################################################################
+ 各种回调监听器
+ ● BootstrapRegistryInitializer：    感知特定阶段：感知引导初始化
+   ○ META-INF/spring.factories
+   ○ 创建引导上下文bootstrapContext的时候触发。
+   ○ application.addBootstrapRegistryInitializer();
+   ○ 场景：进行密钥校对授权。
+ ● ApplicationContextInitializer：   感知特定阶段： 感知ioc容器初始化
+   ○ META-INF/spring.factories
+   ○ application.addInitializers();
+ ● ApplicationListener：    感知全阶段：基于事件机制，感知事件。 一旦到了哪个阶段可以做别的事
+   ○ @Bean或@EventListener： 事件驱动
+   ○ SpringApplication.addListeners(…)或 SpringApplicationBuilder.listeners(…)
+   ○ META-INF/spring.factories
+ ● SpringApplicationRunListener：       感知全阶段生命周期 + 各种阶段都能自定义操作； 功能更完善。
+   ○ META-INF/spring.factories
+ ● ApplicationRunner:          感知特定阶段：感知应用就绪Ready。卡死应用，就不会就绪
+   ○ @Bean
+ ● CommandLineRunner：   感知特定阶段：感知应用就绪Ready。卡死应用，就不会就绪
+   ○ @Bean
+
+
+ 最佳实战：
+ ● 如果项目启动前做事： BootstrapRegistryInitializer 和 ApplicationContextInitializer
+ ● 如果想要在项目启动完成后做事：ApplicationRunner和 CommandLineRunner
+ ● 如果要干涉生命周期做事：SpringApplicationRunListener
+ ● 如果想要用事件机制：ApplicationListener
+####################################################################################################
+完整触发流程
+9大事件触发顺序&时机
+1. ApplicationStartingEvent：应用启动但未做任何事情, 除过注册listeners and initializers.
+2. ApplicationEnvironmentPreparedEvent：  Environment 准备好，但context 未创建.
+3. ApplicationContextInitializedEvent: ApplicationContext 准备好，ApplicationContextInitializers 调用，但是任何bean未加载
+4. ApplicationPreparedEvent： 容器刷新之前，bean定义信息加载
+5. ApplicationStartedEvent： 容器刷新完成， runner未调用
+=========以下就开始插入了探针机制============
+6. AvailabilityChangeEvent： LivenessState.CORRECT应用存活； 存活探针
+7. ApplicationReadyEvent: 任何runner被调用
+8. AvailabilityChangeEvent：ReadinessState.ACCEPTING_TRAFFIC就绪探针，可以接请求
+9.  ApplicationFailedEvent ：启动出错

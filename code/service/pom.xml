@@ -16,6 +16,7 @@
         <module>service-sys</module>
         <module>service-product</module>
         <module>sercive-search</module>
+        <module>service-acitvity</module>
     </modules>
 
     <dependencies>

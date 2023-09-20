@@ -6,13 +6,12 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
-@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)//取消数据源自动配置
+@SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients
-public class ServiceSearchApplication {
+public class ServiceAclApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ServiceSearchApplication.class, args);
+        SpringApplication.run(ServiceAclApplication.class, args);
     }
 
 }

@@ -1,4 +1,4 @@
-package com.atguigu.ssyx.mq.config;
+package com.example.ssyx.mq.config;
 
 
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;

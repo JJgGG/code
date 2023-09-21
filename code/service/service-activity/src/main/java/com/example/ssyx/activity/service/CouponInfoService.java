@@ -1,7 +1,11 @@
 package com.example.ssyx.activity.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.example.ssyx.model.activity.CouponInfo;
+import com.example.ssyx.vo.activity.CouponRuleVo;
+
+import java.util.Map;
 
 /**
  * <p>
@@ -13,4 +17,11 @@ import com.example.ssyx.model.activity.CouponInfo;
  */
 public interface CouponInfoService extends IService<CouponInfo> {
 
+    IPage<CouponInfo> selectPageCouponInfo(Long page, Long limit);
+
+    CouponInfo getCouponInfo(Long id);
+
+    Map<String, Object> findCouponRuleList(Long id);
+
+    void saveCouponRule(CouponRuleVo couponRuleVo);
 }

@@ -2,6 +2,9 @@ package com.example.ssyx.activity.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.ssyx.model.activity.ActivityInfo;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * <p>
@@ -13,4 +16,5 @@ import com.example.ssyx.model.activity.ActivityInfo;
  */
 public interface ActivityInfoMapper extends BaseMapper<ActivityInfo> {
 
+    List<Long> selectSkuIdListExist(@Param("skuIdList") List<Long> skuIdList);
 }

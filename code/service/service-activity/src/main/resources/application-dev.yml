@@ -1,32 +1,19 @@
 server:
-  port: 8203
+  port: 8205
 
 mybatis-plus:
   type-enums-package: com.example.ssyx.enums
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 
+
 spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/shequ-product
+    url: jdbc:mysql://localhost:3306/shequ-activity
     username: root
     password: 7305
-
-    rabbitmq:
-      host: 127.0.0.1
-      port: 5672
-      username: guest
-      password: guest
-      publisher-confirm-type: CORRELATED  #发布确认模式，消息是否被成功发送到交换机
-      publisher-returns: true
-      listener:
-        simple:
-          prefetch: 1
-          concurrency: 3
-          acknowledge-mode: manual   #消费端手动确认
-
   redis:
     host: localhost
     port: 6379
@@ -42,9 +29,3 @@ spring:
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss
     time-zone: GMT+8
-
-aliyun:
-  endpoint: oss-cn-hangzhou.aliyuncs.com
-  keyid: LTAI5tBEffAbH6tKW8dse1vn
-  keysecret: FWqgS3sjozBlQR4J4J1sHbz05WzfeK
-  bucketname: ssyx-example1

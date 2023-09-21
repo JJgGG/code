@@ -1,0 +1,51 @@
+2023年9月20号
+##############################################
+SpringBoot 事件驱动开发
+应用启动过程生命周期事件感知（9大事件）、应用运行中事件感知（无数种）。
+● 事件发布：ApplicationEventPublisherAware或注入：ApplicationEventMulticaster
+● 事件监听：组件 + @EventListener
+事件发布者
+@Service
+public class EventPublisher implements ApplicationEventPublisherAware {
+
+    /**
+     * 底层发送事件用的组件，SpringBoot会通过ApplicationEventPublisherAware接口自动注入给我们
+     * 事件是广播出去的。所有监听这个事件的监听器都可以收到
+     */
+    ApplicationEventPublisher applicationEventPublisher;
+
+    /**
+     * 所有事件都可以发
+     * @param event
+     */
+    public void sendEvent(ApplicationEvent event) {
+        //调用底层API发送事件
+        applicationEventPublisher.publishEvent(event);
+    }
+
+    /**
+     * 会被自动调用，把真正发事件的底层组组件给我们注入进来
+     * @param applicationEventPublisher event publisher to be used by this object
+     */
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
+    }
+}
+
+事件订阅者
+@Service
+public class CouponService {
+
+    @Order(1)
+    @EventListener
+    public void onEvent(LoginSuccessEvent loginSuccessEvent){
+        System.out.println("===== CouponService ====感知到事件"+loginSuccessEvent);
+        UserEntity source = (UserEntity) loginSuccessEvent.getSource();
+        sendCoupon(source.getUsername());
+    }
+
+    public void sendCoupon(String username){
+        System.out.println(username + " 随机得到了一张优惠券");
+    }
+}

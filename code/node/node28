@@ -1,0 +1,11 @@
+2023年9月21号
+##################################################################
+在营销页面进不去，少了一个接口，通过get接口获取活动列表信息
+//    url: `${api_name}/get/${id}`,
+//    method: 'get'
+    @GetMapping("get/{id}")
+    public Result get(@PathVariable Long id) {
+        ActivityInfo activityInfo = activityInfoService.getById(id);
+        activityInfo.setActivityTypeString(activityInfo.getActivityType().getComment());
+        return Result.ok(activityInfo);
+    }

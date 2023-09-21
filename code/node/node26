@@ -1,0 +1,30 @@
+2023年9月20日
+##########################################
+/**
+     * 在活动里面添加规则数据
+     * @param activityRuleVo
+     */
+    @Override
+    public void saveActivityRule(ActivityRuleVo activityRuleVo) {
+        Long activityId = activityRuleVo.getActivityId();
+        //第一步，删除数据
+        //1.先删除数据activityRule
+        activityRuleMapper.delete(new LambdaQueryWrapper<ActivityRule>().eq(ActivityRule::getActivityId,activityId));
+        //2.删除数据activitySku
+        activitySkuMapper.delete(new LambdaQueryWrapper<ActivitySku>().eq(ActivitySku::getActivityId,activityId));
+        //第二步 获取规则列表数据
+        List<ActivityRule> activityRuleList = activityRuleVo.getActivityRuleList();
+        ActivityInfo activityInfo = baseMapper.selectById(activityId);
+        for (ActivityRule activityRule:activityRuleList) {
+            activityRule.setActivityId(activityId);//活动id
+            activityRule.setActivityType(activityInfo.getActivityType());//类型
+            activityRuleMapper.insert(activityRule);
+        }
+
+        //第三步 获取规则范围数据
+        List<ActivitySku> activitySkuList = activityRuleVo.getActivitySkuList();
+        for (ActivitySku activitySku:activitySkuList) {
+            activitySku.setActivityId(activityId);
+            activitySkuMapper.insert(activitySku);
+        }
+    }

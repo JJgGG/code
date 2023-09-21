@@ -23,4 +23,12 @@ public interface ProductFeignClient {
     //根据skuId列表得到sku信息列表
     @PostMapping("/api/product/inner/findSkuInfoList")
     public List<SkuInfo> findSkuInfoList(@RequestBody List<Long> skuIdList);
+
+    //根据分类id获取分类信息
+    @PostMapping("api/product/inner/findCategoryList")
+    public List<Category> findCategoryList(@RequestBody List<Long> categoryIdList);
+
+    //根据关键字匹配sku列表
+    @GetMapping("/api/product/inner/findSkuInfoByKeyword/{keyword}")
+    public List<SkuInfo> findSkuInfoByKeyword(@PathVariable("keyword") String keyword);
 }

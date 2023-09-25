@@ -22,7 +22,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/admin/activity/couponInfo")
-@CrossOrigin
+//@CrossOrigin
 public class CouponInfoController {
     @Autowired
     private CouponInfoService couponInfoService;

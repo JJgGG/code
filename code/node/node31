@@ -1,0 +1,123 @@
+2023年9月27号
+###########################################
+SpringBoot整合
+参照：https://docs.spring.io/spring-kafka/docs/current/reference/html/#preface
+配置
+修改C:\Windows\System32\drivers\etc\hosts文件，配置8.130.32.70 kafka
+
+4. 消息发送
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Component;
+
+@Component
+public class MyBean {
+
+    private final KafkaTemplate<String, String> kafkaTemplate;
+
+    public MyBean(KafkaTemplate<String, String> kafkaTemplate) {
+        this.kafkaTemplate = kafkaTemplate;
+    }
+
+    public void someMethod() {
+        this.kafkaTemplate.send("someTopic", "Hello");
+    }
+
+}
+
+5. 消息监听
+@Component
+public class OrderMsgListener {
+
+    @KafkaListener(topics = "order",groupId = "order-service")
+    public void listen(ConsumerRecord record){
+        System.out.println("收到消息："+record); //可以监听到发给kafka的新消息，以前的拿不到
+    }
+
+    @KafkaListener(groupId = "order-service-2",topicPartitions = {
+            @TopicPartition(topic = "order",partitionOffsets = {
+                    @PartitionOffset(partition = "0",initialOffset = "0")
+            })
+    })
+    public void listenAll(ConsumerRecord record){
+        System.out.println("收到partion-0消息："+record);
+    }
+}
+6. 参数配置
+
+消费者
+Properties
+spring.kafka.consumer.value-deserializer=org.springframework.kafka.support.serializer.JsonDeserializer
+spring.kafka.consumer.properties[spring.json.value.default.type]=com.example.Invoice
+spring.kafka.consumer.properties[spring.json.trusted.packages]=com.example.main,com.example.another
+
+生产者
+Properties
+spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer
+spring.kafka.producer.properties[spring.json.add.type.headers]=false
+
+7. 自动配置原理
+kafka 自动配置在KafkaAutoConfiguration
+容器中放了 KafkaTemplate 可以进行消息收发
+容器中放了KafkaAdmin 可以进行 Kafka 的管理，比如创建 topic 等
+kafka 的配置在KafkaProperties中
+@EnableKafka可以开启基于注解的模式
+#######################################################################
+Web安全
+Apache Shiro
+Spring Security
+自研：Filter
+Spring Security
+1. 安全架构
+1. 认证：Authentication
+who are you?
+登录系统，用户系统
+2. 授权：Authorization
+what are you allowed to do？
+权限管理，用户授权
+3. 攻击防护
+XSS（Cross-site scripting）
+CSRF（Cross-site request forgery）
+CORS（Cross-Origin Resource Sharing）
+SQL注入
+...
+#####################################################################
+使用
+1. HttpSecurity
+@Configuration
+@Order(SecurityProperties.BASIC_AUTH_ORDER - 10)
+public class ApplicationConfigurerAdapter extends WebSecurityConfigurerAdapter {
+  @Override
+  protected void configure(HttpSecurity http) throws Exception {
+    http.antMatcher("/match1/**")
+      .authorizeRequests()
+        .antMatchers("/match1/user").hasRole("USER")
+        .antMatchers("/match1/spam").hasRole("SPAM")
+        .anyRequest().isAuthenticated();
+  }
+}
+
+2. MethodSecurity
+@SpringBootApplication
+@EnableGlobalMethodSecurity(securedEnabled = true)
+public class SampleSecureApplication {
+}
+
+@Service
+public class MyService {
+
+  @Secured("ROLE_USER")
+  public String secure() {
+    return "Hello Security";
+  }
+
+}
+
+核心
+● WebSecurityConfigurerAdapter
+● @EnableGlobalMethodSecurity： 开启全局方法安全配置
+  ○ @Secured
+  ○ @PreAuthorize
+  ○ @PostAuthorize
+● UserDetailService： 去数据库查询用户详细信息的service（用户基本信息、用户角色、用户权限）
+
+

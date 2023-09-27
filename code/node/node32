@@ -1,0 +1,24 @@
+2023年9月27日
+#########################################
+    //1 得到微信返回code临时票据
+    //2 拿着code + 小程序id + 小程序秘钥 请求微信接口服务
+    //3 请求微信接口服务，返回两个值 session_key 和 openid
+    //4 添加微信用户信息到数据库里面
+    //5 根据userId查询提货点和团长信息
+        ////提货点  user表  user_delivery表
+        ////团长    leader表
+        LeaderAddressVo leaderAddressVo =
+                userService.getLeaderAddressByUserId(user.getId());
+
+    //6 使用JWT工具根据userId和userName生成token字符串
+        String token = JwtHelper.createToken(user.getId(), user.getNickName());
+
+    //7 获取当前登录用户信息，放到Redis里面，设置有效时间
+        UserLoginVo userLoginVo = userService.getUserLoginVo(user.getId());
+        redisTemplate.opsForValue()
+                .set(RedisConst.USER_LOGIN_KEY_PREFIX+user.getId(),
+                        userLoginVo,
+                        RedisConst.USERKEY_TIMEOUT,
+                        TimeUnit.DAYS);
+
+     //8 需要数据封装到map返回

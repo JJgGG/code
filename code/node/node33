@@ -1,0 +1,90 @@
+2023年9月28号
+#########################################
+HttpSecurity
+2. MethodSecurity
+核心
+WebSecurityConfigurerAdapter
+@EnableGlobalMethodSecurity： 开启全局方法安全配置
+@Secured
+@PreAuthorize
+@PostAuthorize
+UserDetailService： 去数据库查询用户详细信息的service（用户基本信息、用户角色、用户权限）
+4. 实战
+1. 引入依赖
+2. 页面
+首页
+Hello页
+登录页
+3. 配置类
+视图控制
+Security配置
+package com.atguigu.security.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+
+
+@Configuration
+@EnableWebSecurity
+public class WebSecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+
+        http
+                .authorizeHttpRequests((requests) -> requests
+                        .requestMatchers("/", "/home").permitAll()
+                        .anyRequest().authenticated()
+                )
+                .formLogin((form) -> form
+                        .loginPage("/login")
+                        .permitAll()
+                )
+                .logout((logout) -> logout.permitAll());
+
+        return http.build();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        UserDetails user =
+                User.withDefaultPasswordEncoder()
+                        .username("admin")
+                        .password("admin")
+                        .roles("USER")
+                        .build();
+
+        return new InMemoryUserDetailsManager(user);
+    }
+}
+4. 改造Hello页
+HTML
+
+<!DOCTYPE html>
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  xmlns:th="https://www.thymeleaf.org"
+  xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+>
+  <head>
+    <title>Hello World!</title>
+  </head>
+  <body>
+    <h1 th:inline="text">
+      Hello <span th:remove="tag" sec:authentication="name">thymeleaf</span>!
+    </h1>
+    <form th:action="@{/logout}" method="post">
+      <input type="submit" value="Sign Out" />
+    </form>
+  </body>
+</html>
+
+

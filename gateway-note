@@ -43,3 +43,5 @@ filters：过滤规则
 需要注意的是 Gateway 中 uri 的协议为 lb（LoadBalance，即负载均衡），表示启用 Gateway 的负载均衡功能。
 lb://serviceName，其中 serviceName 就是我们需要转发到的服务名称。
 
+网关就是一个项目的统一入口。
+

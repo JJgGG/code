@@ -31,7 +31,8 @@ public class SkuReceiver {
             //调用方法商品上架
             skuService.upperSku(skuId);
         }
-        channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);
+        //因为配置文件里面写了手动确认
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(),false);//这里的false是标识是否接收多个消息，false是一个，true表示多个
     }
 
     //商品下架
